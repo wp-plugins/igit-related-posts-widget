@@ -35,7 +35,7 @@ class IGIT_Related_Posts_Widget extends WP_Widget
     {
         $widget_ops  = array(
             'classname' => 'example',
-            'description' => __('An example widget that displays a person\'s name and sex.', 'example')
+            'description' => __('IGIT Related Posts Widget Plugin allows you to embed related posts into your sidebar', 'example')
         );
         $control_ops = array(
             'width' => 300,
