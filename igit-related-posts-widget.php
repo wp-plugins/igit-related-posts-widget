@@ -156,7 +156,7 @@ class IGIT_Related_Posts_Widget extends WP_Widget
             $igitwid_output .= ($igitwid_crp_settings['blank_output']) ? ' ' : '<p>' . __($igitwid_igit_rpwt['no_related_post_text'], CRP_LOCAL_NAME) . '</p>';
         }
         $igitwid_output .= '</div>';
-        $igitwid_output .= '<div style="font-size: 10px; float: left;width:100%;padding-top:0px;padding-bottom:0px;" ><a style="color:#ffffff" href="http://www.hackingethics.com/"  title="PHP Freelancer,PHP Programmer India,PHP Developer India,PHP Freelance Programmer,PHP freelance Developer">PHP Freelancer</a></div>';
+       /* $igitwid_output .= '<div style="font-size: 10px; float: left;width:100%;padding-top:0px;padding-bottom:0px;" ><a style="color:#ffffff" href="http://www.hackingethics.com/"  title="PHP Freelancer,PHP Programmer India,PHP Developer India,PHP Freelance Programmer,PHP freelance Developer">PHP Freelancer</a></div>';*/
         echo $before_widget;
         if ($title)
             echo $before_title . $title . $after_title;
