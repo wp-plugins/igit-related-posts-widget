@@ -5,7 +5,7 @@ Plugin link: http://www.hackingethics.com/blog/wordpress-plugins/igit-related-po
 Tags: Posts,Related Posts,Related Posts widget,Related Posts plugin with Thumb image, Thumb Image,SEO,Post.
 Requires at least: 2.3
 Tested up to: 3.0.5
-Stable tag: 1.0
+Stable tag: 1.1
 
 
 == Description ==
@@ -55,6 +55,8 @@ Installation process is a easy 4 step procedure.<br />
 
 
 == Changelog ==
+= 1.1. =
+Latest Timthumb updated, Timthumb vulnerability removed.
 
 = 1.0. =
 - This is the very first release of the IGIT Related Posts Widget plugin. The code base isn’t all that pretty hence the 
