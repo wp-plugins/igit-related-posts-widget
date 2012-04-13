@@ -2,7 +2,7 @@
  * Plugin Name: IGIT Related Posts Widget
  * Plugin URI: http://www.hackingethics.com/blog/wordpress-plugins/igit-related-posts-widget/
  * Description: A widget that embed related posts into your sidebar or wherver your theme supoorts widgets.
- * Version: 1.1
+ * Version: 1.2
  * Author: Ankur Gandhi
  * Author URI: http://www.hackingethics.com/
  *
