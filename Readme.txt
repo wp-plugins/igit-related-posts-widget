@@ -4,30 +4,33 @@ Donate link: http://www.hackingethics.com/
 Plugin link: http://www.hackingethics.com/blog/wordpress-plugins/igit-related-posts-widget/
 Tags: Posts,Related Posts,Related Posts widget,Related Posts plugin with Thumb image, Thumb Image,SEO,Post.
 Requires at least: 2.3
-Tested up to: 3.0.5
-Stable tag: 1.2
+Tested up to: 4.2.4
+Stable tag: 1.3
 
+License: GNU General Public License (GPL), v3 (or newer)
+License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
 == Description ==
 <br />
-                  [Plugin Home Page](http://www.hackingethics.com/blog/wordpress-plugins/igit-related-posts-widget/) | 
+[Plugin Home Page](http://www.hackingethics.com/blog/wordpress-plugins/igit-related-posts-widget/) | 
 [Author Site](http://www.hackingethics.com/) | 
 [Support](http://www.hackingethics.com/blog/wordpress-plugins/igit-related-posts-widget/)| 
 [Hire Me](http://www.hackingethics.com/blog/contact-me/)
 <br />
 <br />
-- The IGIT Related Posts Widget Plugin allows you to embed related posts into your sidebar or wherver your theme supoorts widgets.<br />
-- Related Posts showing by title and content matching, If it not show related posts by title content matching it will search related posts by matching tags and title and if still it is not showing any related posts then it will show random posts.<br />
+- The IGIT Related Posts Widget Plugin allows you to add related posts widget into your sidebar or wherver your theme supoorts widgets.<br />
+- Related Posts showing by matching category and tags of current posts, If current page is home page then it will show random posts.<br />
 - This plugin also empowers the Blog administrator to place manually related posts widget, Also having options to give related posts number,Display Thumb or not,Set Thumb Width and Height.<br />
 - By using this plugin on your blog you can attract your visitors to other related articles of your blog.<br />
 - This plugin is also SEO friendly.<br />
 - <b>Note : This plugin is showing thumb images which are exists in posts and also exists on same server, Images from remote server are not showing in related posts to prevent bandwidth theft.</b><br />
 
 = Major Features =
-1. embed related posts into your sidebar or wherver your theme supoorts widgets<br />
-2. Enter Related Posts Number to Show.<br />
-3. Option for Display Thumb or not.<br />
-4. Option to enter Thumb Width and Height.<br />
+1. Related Posts showing by matching category and tags of current posts.
+2. Add related posts widget into your sidebar or wherver your theme supoorts widgets<br />
+3. feature to enter Related Posts Number to Show.<br />
+4. Option for Display Thumb or not.<br />
+5. Option to enter Thumb Width and Height.<br />
 
 = Included Files =
 
@@ -55,6 +58,12 @@ Installation process is a easy 4 step procedure.<br />
 
 
 == Changelog ==
+= 1.3 =
+- Revamp plugin algoritham to show related posts.
+- Bug fixes
+- Code and CSS changes.
+- Use latest timthumb.php (2.8.14)
+
 = 1.2 =
 - Latest Timthumb 2.8.10 Used.
 

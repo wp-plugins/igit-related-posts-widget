@@ -1,12 +1,18 @@
 <?php /**
  * Plugin Name: IGIT Related Posts Widget
  * Plugin URI: http://www.hackingethics.com/blog/wordpress-plugins/igit-related-posts-widget/
- * Description: A widget that embed related posts into your sidebar or wherver your theme supoorts widgets.
- * Version: 1.2
+ * Description: A related posts widget. Related posts show by matching category and tags.
+ * Version: 1.3
  * Author: Ankur Gandhi
  * Author URI: http://www.hackingethics.com/
  *
- * 
+License: GNU General Public License (GPL), v3 (or newer)
+License URI: http://www.gnu.org/licenses/gpl-3.0.html
+Tags:Related posts, related post with images
+Copyright (c) 2010 - 2012 Ankur Gandhi. All rights reserved.
+ 
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
 /**
@@ -21,13 +27,30 @@ if (!defined('WP_CONTENT_DIR'))
     define('WP_CONTENT_DIR', ABSPATH . 'wp-content');
 if (!defined('WP_PLUGIN_URL'))
     define('WP_PLUGIN_URL', WP_CONTENT_URL . '/plugins');
+if ( ! defined( 'IGIT_RPWID_PLUGIN_FOLDER_NAME' ) )
+      define( 'IGIT_RPWID_PLUGIN_FOLDER_NAME', 'igit-related-posts-widget' );	
 if (!defined('IGIT_WIDGET_REL_CSS_URL'))
-    define('IGIT_WIDGET_REL_CSS_URL', WP_CONTENT_URL . '/plugins/igit-related-posts-widget/css');
+    define('IGIT_WIDGET_REL_CSS_URL', WP_CONTENT_URL . '/plugins/'.IGIT_RPWID_PLUGIN_FOLDER_NAME.'/css');
+		
 require_once(dirname(__FILE__) . '/inc/get-the-image.php');
 add_action('widgets_init', 'igit_rel_load_widgets');
 function igit_rel_load_widgets()
 {
     register_widget('IGIT_Related_Posts_Widget');
+}
+function IGITwidobjectToArray($objecttemp)
+{
+    foreach ($objecttemp as $object) {
+        if (!is_object($object) && !is_array($object)) {
+            return $object;
+        } //!is_object($object) && !is_array($object)
+        if (is_object($object)) {
+            $object = get_object_vars($object);
+        } //is_object($object)
+        $lastarray[] = $object;
+        //return array_map( 'objectToArray', $object );
+    } //$objecttemp as $object
+    return $lastarray;
 }
 class IGIT_Related_Posts_Widget extends WP_Widget
 {
@@ -54,40 +77,128 @@ class IGIT_Related_Posts_Widget extends WP_Widget
         $igitwid_limit    = $pstwidcount;
         if (!$igitwid_limit)
             $igitwid_limit = 5;
-        $time_difference     = get_settings('gmt_offset');
-        $now                 = gmdate("Y-m-d H:i:s", (time() + ($time_difference * 3600)));
-        $pcontigitwidget     = preg_replace('/<img[^>]+./', '', $post->post_content);
-        $igit_wid_search_str = addslashes($post->post_title . ' ' . $pcontigitwidget);
-        if (($post->ID != '') || ($igit_wid_search_str != '')) {
-            $igitwid_sql = "SELECT DISTINCT ID,post_title,post_date,post_content," . "MATCH(post_title,post_content) AGAINST ('" . $igit_wid_search_str . "' WITH QUERY EXPANSION) AS score " . "FROM " . $wpdb->posts . " WHERE " . "MATCH (post_title,post_content) AGAINST ('" . $igit_wid_search_str . "'  WITH QUERY EXPANSION) " . "AND post_date <= '" . $now . "' " . "AND post_status = 'publish' AND post_password = '' " . "AND id != " . $post->ID . " AND post_type = 'post' ";
-            $igitwid_sql .= "ORDER BY RAND() LIMIT 0," . $igitwid_limit;
-            $igitwid_result_counter = 0;
-            $igitwid_results        = $wpdb->get_results($igitwid_sql);
-            if (!$igitwid_results) {
-                $igitwid_ptags = get_the_tags($post->ID);
-                $igitwid_cstr  = "";
-                $i             = 1;
-                if ($igitwid_ptags) {
-                    foreach ($igitwid_ptags as $igitwid_ptag) {
-                        if ($i < count($igitwid_ptags))
-                            $igitwid_cstr .= " post_title LIKE '%" . $igitwid_ptag->name . "%' OR ";
-                        else if ($i == count($ptags))
-                            $igitwid_cstr .= " post_title LIKE '%" . $igitwid_ptag->name . "%'";
-                        $i++;
-                    }
-                    $igitwid_tags_sql = "SELECT DISTINCT ID,post_title,post_date,post_content FROM " . $wpdb->posts . " WHERE (" . $igitwid_cstr . ") AND (post_date <= '" . $now . "' " . "AND post_status = 'publish'  AND post_password = '' " . "AND ID != " . $post->ID . " AND post_type = 'post' )";
-                    $tags_sql .= "ORDER BY RAND() LIMIT 0," . $limit;
-                    $igitwid_result_counter = 0;
-                    $igitwid_results        = $wpdb->get_results($igitwid_tags_sql);
-                }
-                if (!$igitwid_result) {
-                    $igitwid_random_sql     = "SELECT DISTINCT ID, post_title, post_content, post_date,comment_count FROM " . $wpdb->posts . " WHERE post_status = 'publish' AND post_type = 'post' AND post_password = '' AND ID != $post->ID ORDER BY RAND() LIMIT 0," . $igitwid_limit;
-                    $igitwid_result_counter = 0;
-                    $igitwid_results        = $wpdb->get_results($igitwid_random_sql);
-                }
-            }
-        } else {
-            $igitwid_results = false;
+       
+		if ($post->ID != '' && !is_home()) {
+			$cats = get_the_category($post->ID);
+			if ($cats) {
+				foreach ($cats as $cat) {
+					$cat_id_array[] = $cat->cat_ID;
+				} //$cats as $cat
+			} //$cats
+			$ptags = get_the_tags($post->ID);
+			$cstr  = "";
+			$i     = 1;
+			if ($ptags) {
+				foreach ($ptags as $ptag) {
+					$tag_id_array[] = get_tag_ID(trim($ptag->name));
+					$i++;
+				} //$ptags as $ptag
+			} //$ptags
+			if (isset($cat_id_array) && isset($tag_id_array)) 
+			{ 
+				$resultstag = get_posts(array(
+					'tag__in' => $tag_id_array,
+					'post__not_in' => array(
+						$post->ID
+					)
+				));
+				
+				
+					
+				/**** Reset Index of $cat_id_array ****/
+				$cat_id_array = array_values($cat_id_array);
+				
+				if(!empty($cat_id_array)){
+					$resultscat = get_posts(array(
+					'category__in' => $cat_id_array,
+					'post__not_in' => array(
+						$post->ID
+					 )
+					));
+				} 
+		
+				if ($resultscat && $resultstag) {
+					$array1  = IGITwidobjectToArray($resultstag);
+					$array2  = IGITwidobjectToArray($resultscat);
+					$results = array_intersect($array1, $array2);
+				} //$resultscat && $resultstag
+				else {
+					$resultscat = get_posts(array(
+						'category__in' => $cat_id_array,
+						'post__not_in' => array(
+							$post->ID
+						)
+					));
+					$igitwid_results    = IGITwidobjectToArray($resultscat);
+				}
+			} //isset($cat_id_array) && isset($tag_id_array)
+			else if (isset($cat_id_array) && !isset($tag_id_array)) {
+			
+				
+				
+				
+				/**** Reset Index of $cat_id_array ****/
+				$cat_id_array = array_values($cat_id_array);
+				
+				if(!empty($cat_id_array)){
+					$resultscat = get_posts(array(
+					'category__in' => $cat_id_array,	
+					'posts_per_page'   => $igitwid_limit,				
+					'post__not_in' => array(
+						$post->ID
+					 )
+					));
+				} 
+				
+				
+				
+				if(!empty($resultscat)){
+					 $igitwid_results    = IGITwidobjectToArray($resultscat);
+				}
+				else{
+					 $igitwid_results = array();
+				}
+			
+			
+			} //isset($cat_id_array) && !isset($tag_id_array)
+			else if (!isset($cat_id_array) && isset($tag_id_array)) {
+				$resultstag = get_posts(array(
+					'tag__in' => $tag_id_array,
+					'posts_per_page'   => $igitwid_limit,
+					'post__not_in' => array(
+						$post->ID
+					)
+				));
+				$igitwid_results    = IGITwidobjectToArray($resultstag);
+			} //!isset($cat_id_array) && isset($tag_id_array)
+			else {
+				
+				$resultscat = get_posts(array(
+					'post__not_in' => array(
+						$post->ID
+					),
+					'posts_per_page'   => $igitwid_limit,
+				));
+				$igitwid_results    = IGITwidobjectToArray($resultscat);
+			}
+		
+			if (!$igitwid_results) {
+				$resultscat = get_posts(array(
+					'orderby' => 'rand',
+					'posts_per_page'   => $igitwid_limit
+				));
+				$igitwid_results    = IGITwidobjectToArray($resultscat);
+			} //!$results
+		}else {
+			$resultscat = get_posts(array(
+				'orderby' => 'rand',
+				'posts_per_page'   => $igitwid_limit,
+				'post__not_in' => array(
+					$post->ID
+				)
+			));
+			$igitwid_results    = IGITwidobjectToArray($resultscat);
+           // $igitwid_results = false;
         }
         $igitwid_output = '<style type="text/css">
 
@@ -100,6 +211,7 @@ class IGIT_Related_Posts_Widget extends WP_Widget
 
 
 </style><div id="igit_wid_rpwt_css" style= "border: 0pt none ; margin: 0pt; padding: 0pt; clear: both;">';
+
         if ($igitwid_results) {
             $igitwid_width  = $instance['igit_widget_image_width'];
             $igitwid_height = $instance['igit_widget_image_height'];
@@ -111,34 +223,24 @@ class IGIT_Related_Posts_Widget extends WP_Widget
             }
             $igitwid_nodatacnt = 0;
             $widcnt            = 1;
+			 $igitwid_result_counter = 0;
             foreach ($igitwid_results as $igitwid_result) {
                 $igitwid_pstincat = false;
-                $igitwid_title    = trim(stripslashes($igitwid_result->post_title));
+                $igitwid_title    = trim(stripslashes($igitwid_result['post_title']));
                 $igitwid_image    = "";
-                preg_match_all('|<img.*?src=[\'"](.*?)[\'"].*?>|i', $igitwid_result->post_content, $igitwid_matches);
-                if (isset($igitwid_matches)) {
-                    $igitwid_image = $igitwid_matches[1][0];
-                    $igitwid_bgurl = get_bloginfo('url');
-                    if (!strstr($igitwid_image, $igitwid_bgurl)) {
-                        $igitwid_image = WP_PLUGIN_URL . '/igit-related-posts-widget/images/noimage.gif';
-                    }
-                }
-                if (strlen(trim($image)) == 0) {
-                    $igitwid_image = WP_PLUGIN_URL . '/igit-related-posts-widget/images/noimage.gif';
-                }
-                $igitwid_image = parse_url($igitwid_image, PHP_URL_PATH);
+               
                 if ($showigiteidimage) {
-                    $igitwid_divlnk = "onclick=location.href='" . get_permalink($igitwid_result->ID) . "'; style=cursor:pointer;";
-                    $igitwid_output .= '<li id="igit_wid_rpwt_li" style="height:' . $igitwid_height . 'px;    padding-bottom: 10px;" ' . $igitwid_divlnk . '>';
-                    $igitwid_output .= '<div id="igit_wid_rpwt_main_image"  style="float:left;"><a href="' . get_permalink($igitwid_result->ID) . '" target="_top"><img id="igit_rpwt_thumb" src="' . WP_PLUGIN_URL . '/igit-related-posts-widget/timthumb.php?src=' . IGIT_igitwid_get_the_image(array(
-                        'post_id' => $igitwid_result->ID
-                    )) . '&w=' . $igitwid_width . '&h=' . $igitwid_height . '&zc=1"/></a></div>';
-                    $igitwid_output .= '<div id="igit_wid_title" style="float:left;padding-left:7px;    width: 65%;"><a href="' . get_permalink($igitwid_result->ID) . '" target="_top">' . $igitwid_title . '</a></div></li>';
+                    $igitwid_divlnk = "onclick=location.href='" . get_permalink($igitwid_result['ID']) . "'; style=cursor:pointer;";
+                    $igitwid_output .= '<li id="igit_wid_rpwt_li" style="height:' . $igitwid_height . 'px;    margin-bottom: 10px;" ' . $igitwid_divlnk . '>';
+                    $igitwid_output .= '<div id="igit_wid_rpwt_main_image"  style="float:left;"><a href="' . get_permalink($igitwid_result['ID']) . '" target="_top"><img id="igit_rpwid_thumb" src="' . WP_PLUGIN_URL . '/'.IGIT_RPWID_PLUGIN_FOLDER_NAME.'/timthumb.php?src=' . IGIT_igitwid_get_the_image(array(
+                        'post_id' => $igitwid_result['ID']
+                    )) . '&w=' . $igitwid_width . '&h=' . $igitwid_height . '&zc=0"/></a></div>';
+                    $igitwid_output .= '<div id="igit_wid_title" style="float:left;padding-left:7px;    width: 65%;"><a href="' . get_permalink($igitwid_result['ID']) . '" target="_top">' . $igitwid_title . '</a></div></li>';
                     $igitwid_nodatacnt = 1;
                 }
                 if (!$showigiteidimage) {
-                    $igitwid_divlnk = "onclick=location.href='" . get_permalink($igitwid_result->ID) . "'; style=cursor:pointer;";
-                    $igitwid_output .= '<li id="igit_wid_rpwt_li"' . $igitwid_divlnk . '  style="list-style-type:disc;">' . $widcnt . '. <a href="' . get_permalink($igitwid_result->ID) . '" target="_top">' . $igitwid_title . '</a></li>';
+                    $igitwid_divlnk = "onclick=location.href='" . get_permalink($igitwid_result['ID']) . "'; style=cursor:pointer;";
+                    $igitwid_output .= '<li id="igit_wid_rpwt_li"' . $igitwid_divlnk . '  style="list-style-type:disc;">' . $widcnt . '. <a href="' . get_permalink($igitwid_result['ID']) . '" target="_top">' . $igitwid_title . '</a></li>';
                     $igitwid_nodatacnt = 1;
                     $widcnt++;
                 }
@@ -148,9 +250,9 @@ class IGIT_Related_Posts_Widget extends WP_Widget
             }
             if ($igitwid_nodatacnt == 0) {
                 $igitwid_output = '<div id="crp_wid_related">';
-                $output .= ($igitwid_crp_settings['blank_output']) ? ' ' : '<p>' . __("No related posts.", CRP_LOCAL_NAME) . '</p>';
+                $igitwid_output .= ($igitwid_crp_settings['blank_output']) ? ' ' : '<p>' . __("No related posts.", CRP_LOCAL_NAME) . '</p>';
             }
-            $output .= '</ul>';
+            $igitwid_output .= '</ul>';
         } else {
             $igitwid_output = '<div id="crp_wid_related">';
             $igitwid_output .= ($igitwid_crp_settings['blank_output']) ? ' ' : '<p>' . __($igitwid_igit_rpwt['no_related_post_text'], CRP_LOCAL_NAME) . '</p>';
