@@ -76,13 +76,13 @@ function IGIT_igitwid_get_the_image( $args = array() ) {
 			$imageurl = $image['url'];
 		
             if (strlen(trim($imageurl)) == 0) {
-                $imageurl = WP_PLUGIN_URL . '/igit-related-posts-widget/images/noimage.gif'; // when no image found in post 
+                $imageurl = WP_PLUGIN_URL . '/'.IGIT_RPWID_PLUGIN_FOLDER_NAME.'/images/noimage.gif'; // when no image found in post 
             }
 			else
 			{
 				$bgurl = get_bloginfo('url');
 				if(!strstr($imageurl,$bgurl)){
-					$imageurl = WP_PLUGIN_URL . '/igit-related-posts-widget/images/noimage.gif'; // when no image found in post 
+					$imageurl = WP_PLUGIN_URL . '/'.IGIT_RPWID_PLUGIN_FOLDER_NAME.'/images/noimage.gif'; // when no image found in post 
 				}
 			}
             $imageurl = parse_url($imageurl, PHP_URL_PATH);	
@@ -182,7 +182,7 @@ function IGIT_igitwid_image_by_attachment( $args = array() ) {
 	/* If no attachments or image is found, return false. */
 	if ( empty( $attachments ) && empty( $image ) )
 		return false;
-
+	$i=0;
 	/* Loop through each attachment. Once the $order_of_image (default is '1') is reached, break the loop. */
 	foreach ( $attachments as $id => $attachment ) {
 		if ( ++$i == $args['order_of_image'] ) {
@@ -211,7 +211,7 @@ function IGIT_igitwid_image_by_scan( $args = array() ) {
 	preg_match_all( '|<img.*?src=[\'"](.*?)[\'"].*?>|i', get_post_field( 'post_content', $args['post_id'] ), $matches );
 
 	/* If there is a match for the image, return its URL. */
-	if ( isset( $matches ) && $matches[1][0] )
+	if ( isset( $matches ) && $matches[1] )
 		return array( 'url' => $matches[1][0] );
 
 	return false;
